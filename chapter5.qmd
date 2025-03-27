@@ -1,0 +1,114 @@
+---
+title: "chapter5.qmd"
+format: html
+editor: visual
+---
+---
+title: "Chapter 5: An Introduction to Google Earth Engine"
+---
+
+# Abstract
+
+Google Earth Engine (GEE) is a cloud-based platform widely used for efficiently processing large-scale geospatial datasets. Its robust infrastructure allows users to access, analyze, and visualize extensive satellite imagery collections without requiring local computational resources. The initial setup of GEE is straightforward, involving account registration, accessing the code editor, and familiarizing oneself with JavaScript or Python interfaces for scripting. GEE's key strengths lie in its diverse built-in functions and tools, including loading image collections, reducing images across specified spatial or temporal domains, performing regression analyses, and utilizing data joining and filtering techniques.
+![](image/5-1.png)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.1</b> Source: GEE screen: GEE community Beginner’s Cookbook, TC25
+</div>
+
+Image collections in GEE, such as Landsat, Sentinel, or MODIS data, are efficiently accessed using ee.ImageCollection(). Reducing image collections with functions like ee.Reducer.mean() allows users to generate representative images by computing statistical summaries (mean, median, sum) across multiple images, facilitating time-series analysis or regional studies. Regression analysis functions (ee.Reducer.linearFit()) facilitate modeling environmental trends, predicting continuous spatial variables, or evaluating relationships between imagery-derived indices and ground data. Additionally, filtering and joining datasets based on attributes (dates, sensor types, or spatial coverage) provide flexible, powerful methods for selecting relevant subsets from large datasets.
+![](image/5-2.png)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.2</b> Source:https://andrewmaclachlan.github.io/CASA0023-lecture-5/#43
+</div>
+
+Accuracy assessment and validation of GEE-derived results involve spatial cross-validation and statistical measures (e.g., Kappa statistics, Overall Accuracy), ensuring reliability and robustness. Despite numerous advantages, users initially face learning curves regarding scripting proficiency and understanding the cloud-based execution paradigm.
+
+# Application
+
+Google Earth Engine’s capabilities have been extensively applied in environmental research, agriculture monitoring, urban planning, and disaster management. Image collections from Sentinel-2 or Landsat satellites are efficiently used to analyze vegetation health, monitor deforestation, or assess urban growth dynamics. Loading these collections in GEE involves simple scripting, enabling rapid data access and processing. Reducing these collections spatially or temporally helps extract meaningful insights, such as monthly vegetation indices or annual urban expansion rates. For example, Gorelick et al. (2017) illustrated GEE's effectiveness in global forest loss monitoring, demonstrating the platform's capacity to rapidly summarize extensive global imagery datasets.
+![](image/5-3.jpeg)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 2.1</b> Gorelick et al. (2017) illustrated GEE's effectiveness in global forest loss monitoring
+</div>
+
+Regression techniques in GEE are also utilized for predicting crop yields by establishing relationships between spectral indices (NDVI, EVI) derived from satellite imagery and ground-based agricultural data. Filtering and joining tools in GEE allow combining remote sensing imagery with ancillary data sources (meteorological data, topographic variables), significantly improving predictive accuracy.
+
+Principal Component Analysis (PCA) is a powerful statistical method for reducing the dimensionality of satellite imagery while preserving as much spectral variation as possible. It transforms correlated bands into a set of uncorrelated principal components, making it easier to detect patterns such as land cover changes or vegetation variability.
+```r
+# Select bands for PCA
+bands <- c('SR_B2', 'SR_B3', 'SR_B4', 'SR_B5', 'SR_B6', 'SR_B7')
+image <- dataset$median()$select(bands)
+```
+
+Next, we center the image by subtracting the mean of each band:
+
+```r
+# Compute mean of each band
+meanDict <- image$reduceRegion(
+  reducer = ee$Reducer$mean(),
+  geometry = Delhi,
+  scale = 30,
+  maxPixels = 1e9
+)
+
+# Subtract mean to center the image
+means <- ee$Image$constant(meanDict$values(bands))
+centered <- image$subtract(means)
+```
+
+Then we convert the image into array format and compute the covariance matrix:
+
+```r
+# Convert to array image
+arrayImage <- centered$toArray()
+
+# Compute covariance matrix
+covar <- arrayImage$reduceRegion(
+  reducer = ee$Reducer$centeredCovariance(),
+  geometry = Delhi,
+  scale = 30,
+  maxPixels = 1e9
+)
+```
+
+We now perform eigen decomposition on the covariance matrix:
+
+```r
+# Perform eigen decomposition
+covarArray <- ee$Array(covar$get('array'))
+eigens <- covarArray$eigen()
+
+# Extract eigenvalues and eigenvectors
+eigenValues <- eigens$slice(1, 0, 1)
+eigenVectors <- eigens$slice(1, 1)
+```
+
+Finally, we can project the original image into PCA space:
+
+```r
+# Project image into PCA space
+arrayImage2D <- arrayImage$arrayProject(list(0))$arrayFlatten(list(bands))
+pcImage <- ee$Image(eigenVectors)$matrixMultiply(arrayImage2D$toArray()$toArray(1))
+```
+<div style="font-size: 0.9em; color: gray;">
+<b>Code 2.1</b> Source: https://developers.google.com/earth-engine/guides/arrays_eigen_analysis?hl=zh-cn
+</div>
+
+This process produces a new image containing principal component bands (e.g., PC1, PC2), which can be visualized and analyzed to better understand the dominant features in the region.
+
+# Reflection
+
+While Google Earth Engine has transformed geospatial analysis through powerful computational capabilities and extensive data access, some challenges and limitations persist. Initial setup and scripting in GEE require users to possess programming proficiency, particularly in JavaScript or Python, potentially creating barriers for non-specialists. Additionally, although powerful, the complexity of certain functions (e.g., advanced reducers, regression methods) demands considerable expertise to achieve optimal outcomes and accurate interpretations.
+
+To address these challenges, continued development of user-friendly interfaces, such as graphical modeling tools or integration of visual programming languages, could significantly lower entry barriers. Integration of machine learning and AI-assisted scripting could streamline processes, simplifying parameter optimization and improving analytical efficiency. Enhanced visualization features, like real-time feedback on parameter adjustments, would facilitate understanding and improve confidence in results.
+
+Technological innovations, including improved integration with open-source machine learning libraries (e.g., TensorFlow, PyTorch) or enhanced API capabilities, would enable GEE users to undertake increasingly complex spatial modeling tasks directly within the platform. Reinforcing accuracy assessment protocols, such as built-in spatial cross-validation modules or standardized error metrics (Kappa, Overall Accuracy), would further enhance the rigor and reliability of platform-generated results. Ultimately, addressing these issues through technological and interface innovations will expand GEE’s applicability in environmental management, policy decision-making, and scientific research.
+
+# References & official links
+- Gorelick, N., Hancher, M., Dixon, M., Ilyushchenko, S., Thau, D., & Moore, R. (2017). [Google Earth Engine: Planetary-scale geospatial analysis for everyone](https://doi.org/10.1016/j.rse.2017.06.031). *Remote Sensing of Environment, 2017, 18-27.
+- [GEE Official Documentation (Getting Started)](https://developers.google.com/earth-engine/guides/getstarted)
+- [Reducing Image Collections](https://developers.google.com/earth-engine/guides/ic_reducing)
+- [Filtering Data in GEE](https://developers.google.com/earth-engine/guides/ic_filtering)
+---
+
+## 

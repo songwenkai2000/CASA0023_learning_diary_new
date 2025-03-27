@@ -1,0 +1,106 @@
+---
+title: "chapter3.qmd"
+format: html
+editor: visual
+---
+---
+title: "Chapter 3: Remote Sensing Data & Corrections"
+---
+
+# Abstract
+
+Remote sensing imagery often requires comprehensive preprocessing to ensure accurate interpretation and reliable application. This preprocessing typically includes geometric correction, atmospheric correction, empirical line correction, orthorectification, and radiometric correction, which collectively ensure high-quality remote sensing data for precise analysis. 
+
+Geometric correction addresses spatial distortions arising from sensor orientation and Earth's curvature, aligning satellite imagery accurately with real-world geographic coordinates. Orthorectification specifically corrects imagery by considering terrain elevation variations, essential for accurate spatial alignment and mapping.
+![](image/1-1.png)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.3</b> Source:Abdul Basith
+</div>
+
+Atmospheric correction removes distortions caused by atmospheric particles and gases, ensuring that the spectral reflectance recorded represents true surface characteristics. Methods such as empirical line correction provide practical atmospheric correction approaches, calibrating remotely sensed images using known reflectance targets within the imagery, offering simplicity and efficiency, particularly for imagery lacking detailed atmospheric data.
+
+Radiometric correction adjusts sensor-measured radiance into physically meaningful surface reflectance values, correcting for sensor variations and illumination differences between images. The Landsat Analysis Ready Data (ARD) products exemplify rigorous radiometric correction by providing standardized surface reflectance datasets, significantly simplifying analytical workflows and promoting consistency across temporal and spatial scales.
+![](image/1-2.png)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.2</b> Source: LaSRC (Landsat 8-9) Collection 2, level 2 product: https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-reflectance
+</div>
+
+Furthermore, image enhancement techniques, including histogram equalization, contrast stretching, and spatial filtering, improve visual interpretability of remotely sensed imagery, aiding subsequent classification, change detection, and other image-based analyses. Data joining methods facilitate combining imagery datasets across different dates, sensors, or ancillary data sources, enriching analytical contexts and enhancing interpretability, especially in multi-temporal or multi-sensor remote sensing analyses. Together, these preprocessing techniques create robust, high-quality data foundational for accurate environmental assessment, spatial analysis, and informed decision-making.
+```r
+# Option 1: Use custom study area shapefile
+study_area <- st_read("prac_3/study_area.shp") %>%
+  st_transform(32634)
+
+# Clip and mask the raster (e.g., Sentinel-1) using the study area
+m1_clip <- m1 %>%
+  terra::crop(study_area) %>%
+  terra::mask(study_area)
+```
+You can also use administrative boundaries from GADM:
+```r
+# Option 2: Use GADM Level 4 boundaries
+SA <- st_read("prac_3/GADM/gadm41_ZAF.gpkg", 
+              layer = "ADM_ADM_4")
+
+# Filter to Cape Town and reproject
+cape_town <- SA %>%
+  filter(GID_4 == "ZAF.9.3.1.87_1") %>%
+  st_transform(32634)
+
+# Clip and mask using Cape Town boundary
+m1_clip <- m1 %>%
+  terra::crop(cape_town) %>%
+  terra::mask(cape_town)
+```
+<div style="font-size: 0.9em; color: gray;">
+<b>Code 1.1</b> Source: https://andrewmaclachlan.github.io/CASA0023/3_corrections.html
+</div>
+![](image/1-3.png)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.3</b> Source: Land use/cover classification in the Brazilian Amazon using satellite images
+</div>
+
+# Application
+
+In practical remote sensing applications, preprocessing techniques such as geometric correction, atmospheric correction, and radiometric calibration significantly enhance data reliability. For example, geometric and orthorectification corrections have been critical in precise land-cover mapping. Roy et al. (2014) illustrated how Landsat ARD products—characterized by standardized geometric and radiometric corrections—enabled consistent global mapping of surface reflectance. These ARD products, preprocessed to correct sensor biases and atmospheric effects, allow researchers and planners to focus directly on analysis without intensive preprocessing efforts.
+![](image/2-1.jpg)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 2.1</b> Roy et al. (2014) illustrated how Landsat ARD products—characterized by standardized geometric and radiometric corrections—enabled consistent global mapping of surface reflectance.
+</div>
+
+In agricultural monitoring, empirical line correction has proven effective, particularly when atmospheric conditions are uncertain or variable. Studies by Smith and Milton (1999) demonstrated that using empirical line correction with known ground targets effectively removed atmospheric distortions from hyperspectral data, significantly improving vegetation indices' accuracy for crop health assessments.
+![](image/2-2.jpg)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 2.2</b> Studies by Smith and Milton (1999) demonstrated that using empirical line correction with known ground targets effectively removed atmospheric distortions from hyperspectral data.
+</div>
+
+Image enhancement and data joining have proven essential in environmental change analyses. For instance, applying image enhancement techniques such as histogram stretching and edge detection in combination with temporal data joining facilitates detecting subtle environmental changes over time. Kennedy et al. (2010) employed data joining of multi-temporal Landsat imagery combined with enhanced visualization techniques to successfully track forest disturbances and regrowth patterns, offering valuable insights into forest management and conservation strategies.
+
+These comprehensive preprocessing approaches collectively enhance the usability and accuracy of remote sensing data, fostering effective applications in agriculture, forestry, urban planning, and environmental monitoring, thus directly supporting informed decision-making processes.
+
+
+
+# Reflection
+
+Exploring remote sensing preprocessing techniques—geometric, atmospheric, empirical line corrections, orthorectification, and radiometric adjustments—has fundamentally reshaped how I approach spatial data analysis. Before this experience, I took satellite imagery at face value, assuming that what I saw was a direct representation of reality. Learning the intricacies behind geometric and radiometric corrections, particularly the rigor of Landsat ARD products, opened my eyes to how essential precise data preparation is for accurate interpretation and effective planning.
+
+Initially, concepts like empirical line correction and atmospheric adjustment felt abstract, challenging my ability to grasp their practical importance. Yet, as I engaged more deeply, I began appreciating how these techniques directly affect the reliability of analyses in urban and regional planning. Specifically, understanding orthorectification clarified why previous attempts at overlaying satellite images with vector maps often failed due to subtle terrain-related distortions. Now, I am far more confident in performing spatially accurate analyses critical for precise urban infrastructure planning or ecological assessments.
+
+Rather than focusing solely on how preprocessing aids data accuracy, I found myself fascinated by how these methods enhance the storytelling aspect of spatial analysis. Image enhancement, for example, is more than a technical procedure—it transforms complex data into visually engaging narratives, vital when communicating findings to policymakers or communities. This realization inspired me to consider innovative research directions, such as exploring how advanced visualization methods combined with properly corrected remote sensing data can strengthen public participation in urban planning processes.
+
+Ultimately, learning about remote sensing corrections has shifted my perspective from being merely a passive data user to an active analyst capable of critically assessing data quality and effectively communicating its significance. This new insight will undoubtedly influence my future work, guiding me toward creating more accurate, transparent, and engaging spatial analyses that meaningfully contribute to sustainable planning and policy development.
+
+
+# References
+
+- Roy, D. P., et al. (2014). [Landsat-8: Science and product vision for terrestrial global change research](https://www.sciencedirect.com/science/article/pii/S003442571400042X). *Remote Sensing of Environment, 145*, 154-172.
+
+- Smith, G. M., & Milton, E. J. (1999). [The use of empirical line method](https://www.tandfonline.com/doi/abs/10.1080/014311699211994). *International Journal of Remote Sensing, 20*(13), 2653-2662.
+
+- Kennedy, R. E., Yang, Z., & Cohen, W. B. (2010). [Detecting trends in forest disturbance using Landsat time series](https://www.sciencedirect.com/science/article/pii/S0034425710002245). *Remote Sensing of Environment, 114*(12), 2897-2910.
+
+- Jensen, J. R. (2015). *Introductory digital image processing: A remote sensing perspective (4th ed.)*. Pearson Education.
+
+---
+
+## 

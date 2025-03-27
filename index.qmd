@@ -1,0 +1,14 @@
+---
+title: "remote-sensing-diary"
+author: "Wenkai Song"
+---
+
+# Introduction
+
+With an academic background in urban and rural planning, my prior studies and research have primarily centered around design thinking and conceptual frameworks. While I’ve had some experience with GIS, this module marks my first formal engagement with remote sensing and Earth observation technologies. As such, it feels both refreshing and intellectually stimulating to explore cities not just through spatial design, but through the lens of satellite data and spectral analysis.
+
+Remote sensing introduces an entirely new dimension to how we understand urban dynamics. Concepts like land surface temperature, vegetation indices (e.g., NDVI), and temporal land cover change offer powerful, objective tools to assess urban conditions over time and space. This data-driven perspective is especially valuable in complementing the more qualitative, human-centered methods I’ve worked with in the past.
+
+I've always had a strong passion for geography—something that has shaped the way I look at the world since childhood. Now, being able to merge that innate curiosity with technical skills in GIS and remote sensing opens up exciting possibilities. Through this module and the broader degree program, I hope to strengthen my ability to integrate geospatial data into urban planning practices, and to conduct more analytical, evidence-based research. Ultimately, I aim to develop a more holistic planning approach—one that bridges design intuition with measurable environmental realities.
+
+![](image/0.png)

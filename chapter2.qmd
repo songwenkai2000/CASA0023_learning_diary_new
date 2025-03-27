@@ -1,0 +1,22 @@
+---
+title: "chapter2.qmd"
+format: html
+editor: visual
+---
+---
+title: "Chapter 2: Xaringan Presentation and Sentinel-2 Remote Sensing Data"
+---
+The practical application of Xaringan presentations can be demonstrated through a detailed exploration of Sentinel-2 data applications. I have developed an interactive presentation illustrating vegetation indices such as NDVI and EVI calculated from Sentinel-2 data, highlighting their utility in environmental monitoring and precision agriculture. 
+ [👉 My Xaringan Sentinel-2 Remote Sensing Presentation](https://songwenkai2000.github.io/w2/111.html#1)
+<div style="position: relative; width: 90%; height: 70vh; overflow: hidden;">
+  <iframe 
+    src="https://songwenkai2000.github.io/w2/111.html?widescreen=true&ratio=16:9#1"
+    style="position: absolute; top: 0; left: 0; width: 90%; height: 90%; border: none;"
+    scrolling="yes"
+    allowfullscreen>
+  </iframe>
+</div>
+
+# Reflection
+Using Xaringan for presentations significantly enhanced my ability to communicate complex remote sensing analyses clearly and interactively. Initially, mastering its syntax posed challenges, but Xaringan's integration with R Markdown simplified incorporating interactive graphs, maps, and code outputs, streamlining the presentation creation process. I appreciated the flexibility Xaringan offered, allowing dynamic and visually appealing presentations directly from data analysis workflows.For future work, I envision using Xaringan extensively for stakeholder engagement and academic conferences, showcasing detailed remote sensing results more effectively. 
+---

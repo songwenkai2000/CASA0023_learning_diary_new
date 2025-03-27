@@ -1,0 +1,50 @@
+project:
+  type: website
+
+website:
+  title: "Remote Sensing Learning Diary"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - text: "Chapters"
+        menu:
+          - href: chapter1.qmd
+            text: "1 Getting started with Remote Sensing"
+          - href: chapter2.qmd
+            text: "2 Xaringan"
+          - href: chapter3.qmd
+            text: "3 Remote Sensing Data & Corrections"
+          - href: chapter4.qmd
+            text: "4 Policy"
+          - href: chapter5.qmd
+            text: "5 Google Earth Engine"
+          - href: chapter6.qmd
+            text: "6 Classification I"
+          - href: chapter7.qmd
+            text: "7 Classification II"
+          - href: chapter8.qmd
+            text: "8 SAR"
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - index.qmd
+      - section: "Chapters"
+        contents:
+          - chapter1.qmd
+          - chapter2.qmd
+          - chapter3.qmd
+          - chapter4.qmd
+          - chapter5.qmd
+          - chapter6.qmd
+          - chapter7.qmd
+          - chapter8.qmd
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+
+
+editor: visual
+

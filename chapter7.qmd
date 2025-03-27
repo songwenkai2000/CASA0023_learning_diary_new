@@ -1,0 +1,103 @@
+---
+title: "chapter7.qmd"
+format: html
+editor: visual
+---
+---
+title: "Chapter 7: Classification II - OBIA, Subpixel Analysis, and Accuracy Assessment"
+---
+
+# Abstract
+
+Object-Based Image Analysis (OBIA) represents an innovative method for classifying remote sensing imagery, significantly surpassing traditional pixel-based techniques by analyzing images through segmented, meaningful geographic objects. This method integrates spectral data alongside spatial context, shape, texture, and hierarchical information, enhancing accuracy, especially in complex and heterogeneous landscapes. Complementing OBIA, subpixel analysis addresses the mixed-pixel problem common in medium-to-coarse resolution imagery. Techniques such as spectral unmixing quantify fractional abundances of multiple land-cover classes within individual pixels, enabling the detection of components smaller than sensor resolution. Integrating OBIA and subpixel analysis thus yields more detailed and accurate land-cover maps crucial for ecological monitoring and urban planning.
+![](image/7-1.jpg)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.1</b> SegOptim Source:João Gonçalves 2020
+</div>
+
+Accuracy assessments of these advanced classification methods typically involve constructing error matrices (confusion matrices), summarizing agreement between ground truth and classified results. Key derived accuracy metrics include the Kappa coefficient, Producer’s Accuracy (PA), User’s Accuracy (UA), and Overall Accuracy (OA). The Kappa coefficient adjusts classification accuracy for chance agreement, whereas Producer’s Accuracy indicates the probability of correctly classifying reference data, reflecting omission errors. User’s Accuracy represents reliability from a user's perspective, highlighting commission errors. Overall Accuracy, an intuitive metric, measures correctly classified pixels across all classes, providing an overall evaluation.
+![](image/7-2.png)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.2</b> Source:Barsi et al. 2018 Accuracy Dimensions in Remote Sensing
+</div>
+```r
+//------------------ Classification -------------------
+
+// Make a FeatureCollection from the polygons
+var points = ee.FeatureCollection([
+  ee.Feature(urban, {'class': 1}),
+  ee.Feature(grass, {'class': 2}),
+  ee.Feature(bare_earth, {'class': 5}),
+  ee.Feature(forest, {'class': 6}),
+]);
+
+// The name of the property on the points storing the class label.
+var classProperty = 'class';
+
+// Sample the composite to generate training data.  Note that the
+// class label is stored in the 'landcover' property.
+var training = objectPropertiesImage.sampleRegions({
+  collection: points,
+  properties: [classProperty],
+  scale: 30
+});
+
+// Train a CART classifier.
+var classifier = ee.Classifier.smileCart().train({
+  features: training,
+  classProperty: classProperty,
+});
+
+var classified = objectPropertiesImage.classify(classifier);
+
+Map.addLayer(classified, {min: 1, max: 5, palette: ['d99282', 'dfdfc2', 'b3ac9f', '1c5f2c']}, "classified");
+```
+Additionally, spatial cross-validation methods enhance accuracy evaluations by explicitly considering spatial autocorrelation within remote sensing datasets. By partitioning data into spatially independent subsets, spatial cross-validation offers robust validation results, improving the reliability and generalizability of OBIA and subpixel analyses in practical scenarios.
+![](image/7-3.png)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 1.3</b> Source: Spatial visualization of selected test and training observations for cross-validation of one repetition. Random (upper row) and spatial partitioning (lower row). Source:Lovelace et al. 2022
+</div>
+
+# Application
+
+OBIA combined with subpixel analysis has widespread applications in environmental and urban management. In urban areas, OBIA effectively extracts impervious surfaces, vegetation, and water bodies—land covers where spectral mixing is common. Subpixel methods, such as spectral mixture analysis (SMA), further enhance OBIA results by quantifying fractional land-cover within mixed pixels. For instance, Chen et al. (2018) successfully applied OBIA combined with LiDAR and very-high-resolution imagery for urban classification, clearly outperforming pixel-based methods in estimating impervious surfaces and vegetation coverage.
+![](image/7-4.jpg)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 2.1</b> Chen et al. (2018) successfully applied OBIA with SMA to improve urban impervious surface estimation
+</div>
+
+Accuracy assessment using error matrices and Kappa coefficients is indispensable in OBIA research. Myint et al. (2011) provided comprehensive evaluations of OBIA-based urban land-use classification employing confusion matrices and Kappa statistics, offering robust quantitative evidence of classification reliability. Spatial cross-validation methods have further proven crucial in addressing spatial autocorrelation. Pohjankukka et al. (2017) demonstrated how spatial k-fold cross-validation significantly improved accuracy assessments over traditional random splits by explicitly accounting for spatial dependency, thus providing more reliable validation for classification models.
+![](image/7-5.jpg)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 2.2</b> The forest harvesting example. The harvester driver needs to select an optimal route to target destination. Due to SAC, it is to be expected that the prediction error increases the further away we make point predictions. The background map in the image (also in Figure 8(a)) is by the courtesy of OpenStreetMap.
+</div>
+![](image/7-6.jpg)
+<div style="font-size: 0.9em; color: gray;">
+<b>Fig 2.3</b> Pohjankukka et al. (2017) demonstrated that spatial cross-validation significantly improved accuracy assessments
+</div>
+
+These methodological advances have enhanced OBIA’s practical utility, significantly contributing to environmental monitoring, urban planning, and resource management. The integration of OBIA, subpixel analysis, and rigorous accuracy assessments produce reliable, detailed land-cover maps, informing policy decisions on urban development, ecological conservation, and infrastructure management.
+
+# Reflection
+
+Despite considerable advances in classification accuracy through OBIA and subpixel analysis, methodological and practical challenges persist. OBIA accuracy critically depends on segmentation parameters such as scale, shape, and compactness, demanding expert knowledge for effective calibration. Incorrect parameter choices can severely impact classification accuracy, limiting OBIA’s practical application by non-specialists. Similarly, subpixel analysis accuracy hinges on correctly identifying spectral endmembers, which can vary spatially and temporally. Misidentifying endmembers reduces accuracy, potentially biasing classification outcomes.
+
+Although widely used, accuracy metrics like the Kappa coefficient have limitations, notably sensitivity to prevalence effects and class imbalance. Recent research recommends employing alternative metrics such as Producer’s/User’s Accuracy or Overall Accuracy for more stable assessments. Furthermore, spatial cross-validation, despite its effectiveness, requires substantial computational resources and carefully constructed spatial partitions. Poorly executed spatial partitions can inadvertently introduce biases, compromising validation reliability.
+
+Future technological innovations could alleviate these challenges. Deep learning-based segmentation methods could automate parameter selection in OBIA, simplifying workflows considerably. Advances in hyperspectral and super-resolution remote sensing imagery might enhance spectral endmember identification, significantly improving subpixel analysis accuracy. Further, employing robust accuracy metrics and AI-driven automated spatial partitioning algorithms could enhance validation processes' efficiency and reliability. These innovations would broaden OBIA and subpixel analyses’ adoption, significantly contributing to environmental management and informed policy-making.
+
+# References
+
+- Chen, Y., Su, W., Li, J., & Sun, Z. (2018). [Hierarchical object-oriented classification using very high-resolution imagery and LiDAR data over urban areas](https://doi.org/10.3390/rs10101606). *Remote Sensing, 10*(10), 1606.
+
+- Myint, S. W., Gober, P., Brazel, A., Grossman-Clarke, S., & Weng, Q. (2011). [Per-pixel vs. object-based classification of urban land cover extraction using high spatial resolution imagery](https://doi.org/10.1016/j.rse.2010.12.017). *Remote Sensing of Environment, 115*(5), 1145-1161.
+
+- Pohjankukka, J., Pahikkala, T., Nevalainen, P., & Heikkonen, J. (2017). [Estimating the prediction performance of spatial models via spatial k-fold cross-validation](https://doi.org/10.1080/13658816.2017.1346255). *International Journal of Geographical Information Science, 31*(10), 2001-2019.
+
+- Jensen, J. R. (2015). *Introductory Digital Image Processing: A Remote Sensing Perspective (4th ed.)*. Pearson Education.
+
+- Lu, D., & Weng, Q. (2007). [Survey of image classification methods](https://doi.org/10.1080/01431160600746456). *International Journal of Remote Sensing, 28*(5), 823-870.
+
+---
+
+## 
